@@ -1,0 +1,5 @@
+These are some basic tools for manipulating S3O files in Python.
+More will be added later.
+
+s3o.py		- S3O parsing and serialization module
+s3o-optimize.py	- strips redundant data and index-ifies S3O meshes
