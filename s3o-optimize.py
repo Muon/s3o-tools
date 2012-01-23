@@ -3,10 +3,12 @@
 from s3o import S3O
 from optparse import OptionParser
 
+
 def recursively_optimize_pieces(piece):
     optimize_piece(piece)
     for child in piece.children:
         optimize_piece(child)
+
 
 def optimize_piece(piece):
     remap = {}
@@ -16,13 +18,14 @@ def optimize_piece(piece):
         if vertex not in remap:
             remap[vertex] = len(remap)
         new_indices.append(remap[vertex])
-    
+
     new_vertices = [(index, vertex) for vertex, index in remap.items()]
     new_vertices.sort()
     new_vertices = [vertex for index, vertex in new_vertices]
-    
+
     piece.indices = new_indices
     piece.vertices = new_vertices
+
 
 if __name__ == '__main__':
     parser = OptionParser(usage="%prog [options] FILES", version="%prog 0.1",
@@ -34,14 +37,14 @@ if __name__ == '__main__':
     parser.add_option("-q", "--quiet", action="store_true",
                       default=False, dest="silence_output",
                       help="silence optimization summary")
-    
+
     options, args = parser.parse_args()
     if len(args) < 1:
         parser.error("insufficient arguments")
-    
+
     dry = options.is_dry
     silence_output = options.silence_output
-    
+
     for filename in args:
         with open(filename, 'rb+') as input_file:
             data = input_file.read()
@@ -49,10 +52,11 @@ if __name__ == '__main__':
             recursively_optimize_pieces(model.root_piece)
             optimized_data = model.serialize()
             delta_size = len(optimized_data) - len(data)
-            
+
             if not silence_output:
-                print("modified %s: size change: %d bytes" % (filename, delta_size))
-            
+                print("modified %s: "
+                      "size change: %d bytes" % (filename, delta_size))
+
             if not dry and delta_size < 0:
                 input_file.seek(0)
                 input_file.truncate()
