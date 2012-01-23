@@ -29,7 +29,7 @@ class S3O(object):
         self.collision_radius = radius
         self.height = height
         self.midpoint = (mid_x, mid_y, mid_z)
-        #print(header)
+
         self.texture_paths = (_get_null_terminated_string(data, tex1_offset),
                               _get_null_terminated_string(data, tex2_offset))
         self.root_piece = S3OPiece(data, root_piece_offset)
