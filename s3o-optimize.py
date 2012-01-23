@@ -2,6 +2,7 @@
 
 from s3o import S3O
 from optparse import OptionParser
+from glob import glob
 
 
 def recursively_optimize_pieces(piece):
@@ -45,7 +46,12 @@ if __name__ == '__main__':
     dry = options.is_dry
     silence_output = options.silence_output
 
-    for filename in args:
+    if len(args) == 1:
+        filenames = glob(args[0])
+    else:
+        filenames = args
+
+    for filename in filenames:
         with open(filename, 'rb+') as input_file:
             data = input_file.read()
             model = S3O(data)
