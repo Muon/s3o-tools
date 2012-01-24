@@ -79,5 +79,9 @@ if __name__ == '__main__':
                     input_file.seek(0)
                     input_file.truncate()
                     input_file.write(optimized_data)
+            else:
+                if not silence_output:
+                    print("not modified %s: "
+                          "size change: %d bytes" % (filename, delta_size))
 
     print("total size difference: %s" % sizeof_fmt(delta_total))
