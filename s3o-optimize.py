@@ -59,11 +59,12 @@ if __name__ == '__main__':
             optimized_data = model.serialize()
             delta_size = len(optimized_data) - len(data)
 
-            if not silence_output:
-                print("modified %s: "
-                      "size change: %d bytes" % (filename, delta_size))
+            if delta_size < 0:
+                if not silence_output:
+                    print("modified %s: "
+                          "size change: %d bytes" % (filename, delta_size))
 
-            if not dry and delta_size < 0:
-                input_file.seek(0)
-                input_file.truncate()
-                input_file.write(optimized_data)
+                if not dry:
+                    input_file.seek(0)
+                    input_file.truncate()
+                    input_file.write(optimized_data)
