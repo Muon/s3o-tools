@@ -28,6 +28,13 @@ def optimize_piece(piece):
     piece.vertices = new_vertices
 
 
+def sizeof_fmt(num):
+    for x in ['bytes', 'KB', 'MB', 'GB']:
+        if abs(num) < 1024.0:
+            return "%3.1f %s" % (num, x)
+        num /= 1024.0
+    return "%3.1f%s" % (num, 'TB')
+
 if __name__ == '__main__':
     parser = OptionParser(usage="%prog [options] FILES", version="%prog 0.1",
                           description="Optimize a Spring S3O file by "
@@ -37,7 +44,7 @@ if __name__ == '__main__':
                       help="show output summary without committing changes")
     parser.add_option("-q", "--quiet", action="store_true",
                       default=False, dest="silence_output",
-                      help="silence optimization summary")
+                      help="silence detailed optimization output")
 
     options, args = parser.parse_args()
     if len(args) < 1:
@@ -51,13 +58,17 @@ if __name__ == '__main__':
     else:
         filenames = args
 
+    delta_total = 0
+
     for filename in filenames:
         with open(filename, 'rb+') as input_file:
             data = input_file.read()
             model = S3O(data)
             recursively_optimize_pieces(model.root_piece)
             optimized_data = model.serialize()
+
             delta_size = len(optimized_data) - len(data)
+            delta_total += delta_size
 
             if delta_size < 0:
                 if not silence_output:
@@ -68,3 +79,5 @@ if __name__ == '__main__':
                     input_file.seek(0)
                     input_file.truncate()
                     input_file.write(optimized_data)
+
+    print("total size difference: %s" % sizeof_fmt(delta_total))
