@@ -8,7 +8,7 @@ from glob import glob
 def recursively_optimize_pieces(piece):
     optimize_piece(piece)
     for child in piece.children:
-        optimize_piece(child)
+        recursively_optimize_pieces(child)
 
 
 def optimize_piece(piece):
