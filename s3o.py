@@ -11,7 +11,10 @@ _S3OIndex_struct = struct.Struct("< i")
 
 
 def _get_null_terminated_string(data, offset):
-    return data[offset:data.index(b'\x00', offset)]
+    if offset == 0:
+        return ""
+    else:
+        return data[offset:data.index(b'\x00', offset)]
 
 
 class S3O(object):
