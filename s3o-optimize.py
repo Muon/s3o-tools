@@ -3,6 +3,7 @@
 from s3o import S3O
 from optparse import OptionParser
 from glob import glob
+import vertex_cache
 
 
 def recursively_optimize_pieces(piece):
@@ -11,9 +12,17 @@ def recursively_optimize_pieces(piece):
         recursively_optimize_pieces(child)
 
 
+def chunks(l, n):
+    """ Yield successive n-sized chunks from l.
+    """
+    for i in range(0, len(l), n):
+        yield tuple(l[i:i + n])
+
+
 def optimize_piece(piece):
     remap = {}
     new_indices = []
+
     for index in piece.indices:
         vertex = piece.vertices[index]
         if vertex not in remap:
@@ -23,6 +32,31 @@ def optimize_piece(piece):
     new_vertices = [(index, vertex) for vertex, index in remap.items()]
     new_vertices.sort()
     new_vertices = [vertex for index, vertex in new_vertices]
+
+    if piece.primitive_type == "triangles" and len(new_indices) > 0:
+        tris = list(chunks(new_indices, 3))
+        acmr = vertex_cache.average_transform_to_vertex_ratio(tris)
+
+        tmp = vertex_cache.get_cache_optimized_triangles(tris)
+        acmr_new = vertex_cache.average_transform_to_vertex_ratio(tmp)
+        if acmr_new < acmr:
+            new_indices = []
+            for tri in tmp:
+                new_indices.extend(tri)
+
+    vertex_map = []
+    remapped_indices = []
+    for index in new_indices:
+        try:
+            new_index = vertex_map.index(index)
+        except ValueError:
+            new_index = len(vertex_map)
+            vertex_map.append(index)
+
+        remapped_indices.append(new_index)
+
+    new_vertices = [new_vertices[index] for index in vertex_map]
+    new_indices = remapped_indices
 
     piece.indices = new_indices
     piece.vertices = new_vertices
@@ -69,7 +103,7 @@ if __name__ == '__main__':
 
             delta_size = len(optimized_data) - len(data)
 
-            if delta_size < 0:
+            if delta_size <= 0:
                 delta_total += delta_size
                 if not silence_output:
                     print("modified %s: "
