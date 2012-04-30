@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import sys
 import struct
 
 _S3OHeader_struct = struct.Struct("< 12s i 5f 4i")
