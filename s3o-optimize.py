@@ -103,19 +103,14 @@ if __name__ == '__main__':
 
             delta_size = len(optimized_data) - len(data)
 
-            if delta_size <= 0:
-                delta_total += delta_size
-                if not silence_output:
-                    print("modified %s: "
-                          "size change: %d bytes" % (filename, delta_size))
+            delta_total += delta_size
+            if not silence_output:
+                print("modified %s: "
+                      "size change: %+d bytes" % (filename, delta_size))
 
-                if not dry:
-                    input_file.seek(0)
-                    input_file.truncate()
-                    input_file.write(optimized_data)
-            else:
-                if not silence_output:
-                    print("not modified %s: "
-                          "size change: %d bytes" % (filename, delta_size))
+            if not dry:
+                input_file.seek(0)
+                input_file.truncate()
+                input_file.write(optimized_data)
 
     print("total size difference: %s" % sizeof_fmt(delta_total))
